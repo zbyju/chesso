@@ -1,5 +1,5 @@
 package model.pieces
 
-case class Rook(isWhite: Boolean) extends Piece(isWhite) {
+case class Rook(override val isWhite: Boolean) extends Piece(isWhite) {
   override val tileRepresentation: Char = 'R'
 }

@@ -1,6 +1,8 @@
 package model
 
 import model.pieces.Tile
+import scala.Nothing
+import java.security.InvalidParameterException
 
 /** The `Board` class represents a chess board in the context of a chess game.
   *
@@ -16,21 +18,19 @@ import model.pieces.Tile
   * strategies and should focus solely on managing the state of the board. It
   * should not manage individual games, players, clock, etc.
   *
-  * Example:
-  *
-  * 7 r n b q k b n r 6 p p p p p p p p 5 4 3 2 1 P P P P P P P P 0 R N B Q K B
-  * N R 0 1 2 3 4 5 6 7
-  *
   * Note: The board is indexed board(rank)(file); the 0th index is the white
   * side's first rank; black's first rank is index at index 7. The files are
   * indexed left to right.
   */
-class Board(val board: Seq[Seq[Tile]] = initialBoard) {
+class Board private (val board: Seq[Seq[Tile]] = initialBoard) {
 
   /** Note: the board needs to be printed in reverse so that black is on top and
     * white on the bottom
     */
   override def toString(): String = board.reverse.map(_.mkString).mkString("\n")
+
+  def sq(c: Coords): Tile = board(c.rank)(c.file)
+  def sq(str: String): Option[Tile] = Coords.fromString(str).map(sq(_))
 }
 
 /** The companion object `Board` provides factory methods for creating instances
@@ -43,6 +43,11 @@ class Board(val board: Seq[Seq[Tile]] = initialBoard) {
   * of the `Board` class.
   */
 object Board {
+  def apply(b: Seq[Seq[Tile]] = initialBoard): Option[Board] = {
+    if (b.length != 8 || b.forall(r => r.length != 8)) None
+    else Some(new Board(b))
+  }
+
   def initialBoard: Seq[Seq[Tile]] = fromString("""rnbqkbnr
                                    |pppppppp
                                    |        

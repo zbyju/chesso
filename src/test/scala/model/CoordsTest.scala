@@ -54,4 +54,86 @@ class CoordsTest extends AnyFlatSpec with Matchers {
     assert(Coords(7, 7).get.toString == "h8")
   }
 
+  it should "compare 2 Coords based on the rank and file" in {
+    assert(Coords(0, 0) == Coords(0, 0))
+    assert(Coords(1, 0) == Coords(1, 0))
+    assert(Coords(3, 4) == Coords(3, 4))
+    assert(Coords(7, 7) == Coords(7, 7))
+  }
+
+  "fromString" should "create Coords if provided algebraic notation coords" in {
+    assert(Coords.fromString("a1").get == Coords(0, 0).get)
+    assert(Coords.fromString("a2").get == Coords(1, 0).get)
+    assert(Coords.fromString("b1").get == Coords(0, 1).get)
+    assert(Coords.fromString("d4").get == Coords(3, 3).get)
+    assert(Coords.fromString("e4").get == Coords(3, 4).get)
+    assert(Coords.fromString("h8").get == Coords(7, 7).get)
+  }
+
+  "fromString" should "return None if the string is not valid algebraic notation coords" in {
+    assert(Coords.fromString("") == None)
+    assert(Coords.fromString("a") == None)
+    assert(Coords.fromString("1") == None)
+    assert(Coords.fromString("a9") == None)
+    assert(Coords.fromString("a0") == None)
+    assert(Coords.fromString("`1") == None)
+    assert(Coords.fromString("i1") == None)
+  }
+
+  "moveVertical" should "return the tile within the board with positive and negative offset" in {
+    val a1 = Coords.fromString("a1").get
+    val a8 = Coords.fromString("a8").get
+    val d4 = Coords.fromString("d4").get
+    val d5 = Coords.fromString("d5").get
+    assert(d4.moveVertical(1).get == d5)
+    assert(d5.moveVertical(-1).get == d4)
+    assert(a1.moveVertical(7).get == a8)
+    assert(a8.moveVertical(-7).get == a1)
+  }
+
+  "moveVertical" should "return None if the coords fall outside the board" in {
+    val a1 = Coords.fromString("a1").get
+    val a8 = Coords.fromString("a8").get
+    val d4 = Coords.fromString("d4").get
+    assert(a1.moveVertical(-1) == None)
+    assert(a8.moveVertical(1) == None)
+    assert(d4.moveVertical(-4) == None)
+    assert(d4.moveVertical(5) == None)
+    assert(d4.moveVertical(15) == None)
+    assert(d4.moveVertical(-15) == None)
+    assert(d4.moveVertical(Byte.MaxValue) == None)
+    assert(d4.moveVertical(Byte.MinValue) == None)
+  }
+
+  "moveHorizontal" should "return the tile within the board with positive and negative offset" in {
+    val a1 = Coords.fromString("a1").get
+    val b1 = Coords.fromString("b1").get
+    val h1 = Coords.fromString("h1").get
+    val g8 = Coords.fromString("g8").get
+    val h8 = Coords.fromString("h8").get
+    val d4 = Coords.fromString("d4").get
+    val e4 = Coords.fromString("e4").get
+    assert(a1.moveHorizontal(1).get == b1)
+    assert(b1.moveHorizontal(-1).get == a1)
+    assert(a1.moveHorizontal(7).get == h1)
+    assert(h1.moveHorizontal(-7).get == a1)
+    assert(g8.moveHorizontal(1).get == h8)
+    assert(h8.moveHorizontal(-1).get == g8)
+    assert(d4.moveHorizontal(1).get == e4)
+    assert(e4.moveHorizontal(-1).get == d4)
+  }
+
+  "moveHorizontal" should "return None if the coords fall outside the board" in {
+    val a1 = Coords.fromString("a1").get
+    val d4 = Coords.fromString("d4").get
+    val h8 = Coords.fromString("h8").get
+    assert(a1.moveHorizontal(-1) == None)
+    assert(h8.moveHorizontal(1) == None)
+    assert(d4.moveHorizontal(-4) == None)
+    assert(d4.moveHorizontal(5) == None)
+    assert(d4.moveHorizontal(-40) == None)
+    assert(d4.moveHorizontal(50) == None)
+    assert(d4.moveHorizontal(Byte.MaxValue) == None)
+    assert(d4.moveHorizontal(Byte.MinValue) == None)
+  }
 }

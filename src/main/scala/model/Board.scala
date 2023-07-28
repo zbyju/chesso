@@ -69,8 +69,17 @@ object Board {
     str.split('\n').map(row => row.map(c => Tile.fromChar(c))).reverse
   }
 
-  // TODO: fromFEN
-  def fromFEN(fen: String): Seq[Seq[Tile]] = ???
+  def fromFEN(fen: String): Seq[Seq[Tile]] = fromFENBoard(fen.split(" ")(0))
+
+  def fromFENBoard(fen: String) = fromString(
+    fen.flatMap(c =>
+      if (c == '/') "\n"
+      else if (c.isLetter) c.toString
+      else if (c.isDigit) " " * (c.toInt - '0'.toInt)
+      else ""
+    )
+  )
+
   // TODO: fromPGN
   def fromPGNOnMove(fen: String, move: Int): Seq[Seq[Tile]] = ???
 }

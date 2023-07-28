@@ -1,4 +1,4 @@
-# Cheso - A scala chess library
+# Chesso - A scala chess library
 
 ## Usage
 

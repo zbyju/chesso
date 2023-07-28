@@ -51,9 +51,12 @@ object Coords {
     if (rank < 0 || rank > 7 || file < 0 || file > 7) None
     else Some(new Coords(rank, file))
   }
+
   implicit def fromString(str: String): Option[Coords] =
-    Coords(
-      (str(0).toLower.toInt - 'a'.toInt).toByte,
-      (str(1).toInt - '0'.toInt).toByte
-    )
+    if (str.length != 2) None
+    else
+      Coords(
+        (str(1).toInt - '1'.toInt).toByte,
+        (str(0).toLower.toInt - 'a'.toInt).toByte
+      )
 }

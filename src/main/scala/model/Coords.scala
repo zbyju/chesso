@@ -1,35 +1,37 @@
 package model
 
-case class Coords(rank: Byte, file: Byte) {
+case class Coords private (rank: Byte, file: Byte) {
   require(rank >= 0 && rank <= 7 && file >= 0 && file <= 7)
 
   /** Get new coords moved from this coords up (positive) or down (negative) in
     * a vertical direction (|)
     */
-  def moveVertical(by: Byte = 0): Coords = Coords((rank + by).toByte, file)
+  def moveVertical(by: Byte = 0): Option[Coords] =
+    Coords((rank + by).toByte, file)
 
   /** Get new coords moved from this coords right (positive) or left (negative)
     * in a vertical direction (-)
     */
-  def moveHorizontal(by: Byte = 0): Coords = Coords(rank, (file + by).toByte)
+  def moveHorizontal(by: Byte = 0): Option[Coords] =
+    Coords(rank, (file + by).toByte)
 
   /** Get new coords moved from this coords up+right (positive) or left+down
     * (negative) in a vertical direction (/)
     */
-  def movePositiveDiagonal(by: Byte = 0): Coords =
+  def movePositiveDiagonal(by: Byte = 0): Option[Coords] =
     Coords((rank + by).toByte, (file + by).toByte)
 
   /** Get new coords moved from this coords up+left (positive) or down+right
     * (negative) in a vertical direction (\)
     */
-  def moveNegativeDiagonal(by: Byte = 0): Coords =
+  def moveNegativeDiagonal(by: Byte = 0): Option[Coords] =
     Coords((rank + by).toByte, (file - by).toByte)
 
   /** Get new coords moved from this coords to new coords according to the
     * knight jump. There are 8 possibilites, select the new coords using dir
     * clockwise, starting from top right (2 up 1 right and going clockwise).
     */
-  def moveKnight(dir: Byte): Coords = {
+  def moveKnight(dir: Byte): Option[Coords] = {
     require(dir >= 0 && dir <= 7)
     val ys = Seq(2, 1, -1, -2, -2, -1, 1, 2)
     val xs = Seq(1, 2, 2, 1, -1, -2, -2, -1)
@@ -45,8 +47,13 @@ case class Coords(rank: Byte, file: Byte) {
 }
 
 object Coords {
-  def safeCreate(rank: Byte, file: Byte): Option[Coords] = {
+  def apply(rank: Byte, file: Byte): Option[Coords] = {
     if (rank < 0 || rank > 7 || file < 0 || file > 7) None
-    Some(Coords(rank, file))
+    else Some(new Coords(rank, file))
   }
+  implicit def fromString(str: String): Option[Coords] =
+    Coords(
+      (str(0).toLower.toInt - 'a'.toInt).toByte,
+      (str(1).toInt - '0'.toInt).toByte
+    )
 }

@@ -19,7 +19,7 @@ Tracks the state of the board - mainly the piece placement.
 ### Game
 **Methods:**
 
-```
+```scala
 lazy val isFinished: Boolean
 lazy val result: Result
 def move(move: Move): Either[String, Game]
@@ -27,7 +27,7 @@ def move(move: Move): Either[String, Game]
 ### [﻿Board](https://app.eraser.io/workspace/xr6rfrnaWzvhcZfpPcUK?elements=ndkt6UswRRi3-X46qAdHvA) 
 **Methods:**
 
-```
+```scala
 lazy val whitePieces: BoardPieces
 lazy val blackPieces: BoardPieces
 lazy val allPieces: BoardPieces

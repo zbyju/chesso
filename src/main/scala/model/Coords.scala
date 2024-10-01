@@ -43,7 +43,6 @@ case class Coords private (rank: Byte, file: Byte) {
     val fileStr = "abcdefgh".apply(file)
     fileStr + rankStr
   }
-
 }
 
 object Coords {

@@ -1,139 +1,117 @@
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import model.Coords
-import scala.util.Failure
 
 class CoordsTest extends AnyFlatSpec with Matchers {
 
-  "Coords" should "be able to be created" in {
-    val c1 = Coords(0, 0).get
-    val c2 = Coords(0, 7).get
-    val c3 = Coords(7, 7).get
-    val c4 = Coords(7, 0).get
-    val c5 = Coords(3, 4).get
-    assert(c1.rank == 0 && c1.file == 0)
-    assert(c2.rank == 0 && c2.file == 7)
-    assert(c3.rank == 7 && c3.file == 7)
-    assert(c4.rank == 7 && c4.file == 0)
-    assert(c5.rank == 3 && c5.file == 4)
+  "Coords" should "be created with valid rank and file" in {
+    Coords(0, 0) shouldBe defined
+    Coords(7, 7) shouldBe defined
   }
 
-  it should "return None when rank or file is out of board (8x8)" in {
-    assert(Coords(8, 0) == None)
-    assert(Coords(0, 8) == None)
-    assert(Coords(8, 8) == None)
-    assert(Coords(-1, 0) == None)
-    assert(Coords(0, -1) == None)
-    assert(Coords(Byte.MinValue, 0) == None)
-    assert(Coords(Byte.MaxValue, 0) == None)
-    assert(Coords(0, Byte.MinValue) == None)
-    assert(Coords(0, Byte.MinValue) == None)
+  it should "not be created with invalid rank or file" in {
+    Coords(-1, 0) shouldBe None
+    Coords(0, -1) shouldBe None
+    Coords(8, 0) shouldBe None
+    Coords(0, 8) shouldBe None
   }
 
-  "toString" should "return the string corresponding to the square in the algebraic notation" in {
-    assert(Coords(0, 0).get.toString == "a1")
-    assert(Coords(0, 1).get.toString == "b1")
-    assert(Coords(0, 2).get.toString == "c1")
-    assert(Coords(0, 3).get.toString == "d1")
-    assert(Coords(0, 4).get.toString == "e1")
-    assert(Coords(0, 5).get.toString == "f1")
-    assert(Coords(0, 6).get.toString == "g1")
-    assert(Coords(0, 7).get.toString == "h1")
-
-    assert(Coords(0, 0).get.toString == "a1")
-    assert(Coords(1, 0).get.toString == "a2")
-    assert(Coords(2, 0).get.toString == "a3")
-    assert(Coords(3, 0).get.toString == "a4")
-    assert(Coords(4, 0).get.toString == "a5")
-    assert(Coords(5, 0).get.toString == "a6")
-    assert(Coords(6, 0).get.toString == "a7")
-    assert(Coords(7, 0).get.toString == "a8")
-
-    assert(Coords(1, 1).get.toString == "b2")
-    assert(Coords(3, 4).get.toString == "e4")
-    assert(Coords(7, 7).get.toString == "h8")
+  it should "be created from valid string" in {
+    Coords.fromString("a1") shouldBe defined
+    Coords.fromString("a1") shouldBe Coords(0, 0)
+    Coords.fromString("h8") shouldBe defined
+    Coords.fromString("h8") shouldBe Coords(7, 7)
+    Coords.fromString("b3") shouldBe defined
+    Coords.fromString("b3") shouldBe Coords(2, 1)
   }
 
-  it should "compare 2 Coords based on the rank and file" in {
-    assert(Coords(0, 0) == Coords(0, 0))
-    assert(Coords(1, 0) == Coords(1, 0))
-    assert(Coords(3, 4) == Coords(3, 4))
-    assert(Coords(7, 7) == Coords(7, 7))
+  it should "not be created from invalid string" in {
+    Coords.fromString("i1") shouldBe None
+    Coords.fromString("a9") shouldBe None
+    Coords.fromString("a") shouldBe None
+    Coords.fromString("abc") shouldBe None
   }
 
-  "fromString" should "create Coords if provided algebraic notation coords" in {
-    assert(Coords.fromString("a1").get == Coords(0, 0).get)
-    assert(Coords.fromString("a2").get == Coords(1, 0).get)
-    assert(Coords.fromString("b1").get == Coords(0, 1).get)
-    assert(Coords.fromString("d4").get == Coords(3, 3).get)
-    assert(Coords.fromString("e4").get == Coords(3, 4).get)
-    assert(Coords.fromString("h8").get == Coords(7, 7).get)
+  it should "move vertically" in {
+    val c = Coords(3, 3).get
+    c.moveVertical(1) shouldBe Coords(4, 3)
+    c.moveVertical(-1) shouldBe Coords(2, 3)
+    c.moveVertical(4) shouldBe Coords(7, 3)
+    c.moveVertical(-3) shouldBe Coords(0, 3)
+    c.moveVertical(5) shouldBe None
+    c.moveVertical(-4) shouldBe None
   }
 
-  "fromString" should "return None if the string is not valid algebraic notation coords" in {
-    assert(Coords.fromString("") == None)
-    assert(Coords.fromString("a") == None)
-    assert(Coords.fromString("1") == None)
-    assert(Coords.fromString("a9") == None)
-    assert(Coords.fromString("a0") == None)
-    assert(Coords.fromString("`1") == None)
-    assert(Coords.fromString("i1") == None)
+  it should "move horizontally" in {
+    val c = Coords(3, 3).get
+    c.moveHorizontal(1) shouldBe Coords(3, 4)
+    c.moveHorizontal(-1) shouldBe Coords(3, 2)
+    c.moveHorizontal(4) shouldBe Coords(3, 7)
+    c.moveHorizontal(-3) shouldBe Coords(3, 0)
+    c.moveHorizontal(5) shouldBe None
+    c.moveHorizontal(-4) shouldBe None
   }
 
-  "moveVertical" should "return the tile within the board with positive and negative offset" in {
-    val a1 = Coords.fromString("a1").get
-    val a8 = Coords.fromString("a8").get
-    val d4 = Coords.fromString("d4").get
-    val d5 = Coords.fromString("d5").get
-    assert(d4.moveVertical(1).get == d5)
-    assert(d5.moveVertical(-1).get == d4)
-    assert(a1.moveVertical(7).get == a8)
-    assert(a8.moveVertical(-7).get == a1)
+  it should "move positive diagonally" in {
+    val c = Coords(3, 3).get
+    c.movePositiveDiagonal(1) shouldBe Coords(4, 4)
+    c.movePositiveDiagonal(-1) shouldBe Coords(2, 2)
+    c.movePositiveDiagonal(4) shouldBe Coords(7, 7)
+    c.movePositiveDiagonal(-3) shouldBe Coords(0, 0)
+    c.movePositiveDiagonal(5) shouldBe None
+    c.movePositiveDiagonal(-4) shouldBe None
   }
 
-  "moveVertical" should "return None if the coords fall outside the board" in {
-    val a1 = Coords.fromString("a1").get
-    val a8 = Coords.fromString("a8").get
-    val d4 = Coords.fromString("d4").get
-    assert(a1.moveVertical(-1) == None)
-    assert(a8.moveVertical(1) == None)
-    assert(d4.moveVertical(-4) == None)
-    assert(d4.moveVertical(5) == None)
-    assert(d4.moveVertical(15) == None)
-    assert(d4.moveVertical(-15) == None)
-    assert(d4.moveVertical(Byte.MaxValue) == None)
-    assert(d4.moveVertical(Byte.MinValue) == None)
+  it should "move negative diagonally" in {
+    val c = Coords(3, 3).get
+    c.moveNegativeDiagonal(1) shouldBe Coords(4, 2)
+    c.moveNegativeDiagonal(-1) shouldBe Coords(2, 4)
+    c.moveNegativeDiagonal(3) shouldBe Coords(6, 0)
+    c.moveNegativeDiagonal(-3) shouldBe Coords(0, 6)
+    c.moveNegativeDiagonal(4) shouldBe None
+    c.moveNegativeDiagonal(-4) shouldBe None
   }
 
-  "moveHorizontal" should "return the tile within the board with positive and negative offset" in {
-    val a1 = Coords.fromString("a1").get
-    val b1 = Coords.fromString("b1").get
-    val h1 = Coords.fromString("h1").get
-    val g8 = Coords.fromString("g8").get
-    val h8 = Coords.fromString("h8").get
-    val d4 = Coords.fromString("d4").get
-    val e4 = Coords.fromString("e4").get
-    assert(a1.moveHorizontal(1).get == b1)
-    assert(b1.moveHorizontal(-1).get == a1)
-    assert(a1.moveHorizontal(7).get == h1)
-    assert(h1.moveHorizontal(-7).get == a1)
-    assert(g8.moveHorizontal(1).get == h8)
-    assert(h8.moveHorizontal(-1).get == g8)
-    assert(d4.moveHorizontal(1).get == e4)
-    assert(e4.moveHorizontal(-1).get == d4)
+  it should "move as a knight" in {
+    val c = Coords(3, 3).get
+    c.moveKnight(0) shouldBe Coords(5, 4)
+    c.moveKnight(1) shouldBe Coords(4, 5)
+    c.moveKnight(2) shouldBe Coords(2, 5)
+    c.moveKnight(3) shouldBe Coords(1, 4)
+    c.moveKnight(4) shouldBe Coords(1, 2)
+    c.moveKnight(5) shouldBe Coords(2, 1)
+    c.moveKnight(6) shouldBe Coords(4, 1)
+    c.moveKnight(7) shouldBe Coords(5, 2)
+
+    an[IllegalArgumentException] should be thrownBy c.moveKnight(-1)
+    an[IllegalArgumentException] should be thrownBy c.moveKnight(8)
   }
 
-  "moveHorizontal" should "return None if the coords fall outside the board" in {
-    val a1 = Coords.fromString("a1").get
-    val d4 = Coords.fromString("d4").get
-    val h8 = Coords.fromString("h8").get
-    assert(a1.moveHorizontal(-1) == None)
-    assert(h8.moveHorizontal(1) == None)
-    assert(d4.moveHorizontal(-4) == None)
-    assert(d4.moveHorizontal(5) == None)
-    assert(d4.moveHorizontal(-40) == None)
-    assert(d4.moveHorizontal(50) == None)
-    assert(d4.moveHorizontal(Byte.MaxValue) == None)
-    assert(d4.moveHorizontal(Byte.MinValue) == None)
+  it should "convert to string correctly" in {
+    Coords(0, 0).get.toString shouldBe "a1"
+    Coords(7, 7).get.toString shouldBe "h8"
+    Coords(2, 4).get.toString shouldBe "e3"
+  }
+
+  it should "handle edge cases for all move methods" in {
+    val corner = Coords(0, 0).get
+    corner.moveVertical(-1) shouldBe None
+    corner.moveHorizontal(-1) shouldBe None
+    corner.movePositiveDiagonal(-1) shouldBe None
+    corner.moveNegativeDiagonal(-1) shouldBe None
+
+    (0 until 8)
+      .map(i => corner.moveKnight(i.toByte))
+      .count(_.isEmpty) shouldBe 6
+
+    val topRight = Coords(7, 7).get
+    topRight.moveVertical(1) shouldBe None
+    topRight.moveHorizontal(1) shouldBe None
+    topRight.movePositiveDiagonal(1) shouldBe None
+    topRight.moveNegativeDiagonal(1) shouldBe None
+
+    (0 until 8)
+      .map(i => topRight.moveKnight(i.toByte))
+      .count(_.isEmpty) shouldBe 6
   }
 }

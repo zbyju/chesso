@@ -8,7 +8,7 @@ case class BitPosition private (value: Int) extends Ordered[BitPosition]:
   def toCoords(): Coords = {
     val rank = value / 8
     val file = value % 8
-    Coords(file.toByte, rank.toByte).get
+    Coords(rank.toByte, file.toByte).get
   }
 
 object BitPosition:

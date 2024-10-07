@@ -3,6 +3,8 @@ package model
 import model.pieces.Tile
 import scala.Nothing
 import java.security.InvalidParameterException
+import model.pieces.CharPiece
+import scala.annotation.switch
 
 /** The `Board` class represents a chess board in the context of a chess game.
   *
@@ -22,69 +24,148 @@ import java.security.InvalidParameterException
   * side's first rank; black's first rank is index at index 7. The files are
   * indexed left to right.
   */
-class Board private (val board: Seq[Seq[Tile]] = initialBoard) {
+case class Board(white: BoardOfColor, black: BoardOfColor)
+    extends BitBoardLike {
 
-  /** Note: the board needs to be printed in reverse so that black is on top and
-    * white on the bottom
-    */
-  override def toString(): String = board.reverse.map(_.mkString).mkString("\n")
+  /** Get all occupied squares (by either color) */
+  def allPieces: BitBoard =
+    white.allPieces.combine(black.allPieces)
 
-  def sq(c: Coords): Tile = board(c.rank)(c.file)
-  def sq(str: String): Option[Tile] = Coords.fromString(str).map(sq(_))
+  /** Get BoardOfColor for specified color */
+  def boardByColor(color: Color): BoardOfColor = color match {
+    case Color.White => white
+    case Color.Black => black
+  }
+
+  /** Get color of piece at position (if any) */
+  def colorAt(pos: Coords): Option[Color] = {
+    if (white.isOccupied(pos)) Some(Color.White)
+    else if (black.isOccupied(pos)) Some(Color.Black)
+    else None
+  }
+
+  // ************************************** SET **************************************
+
+  /** Set piece of specific color at position */
+  def setPiece(piece: PieceType, color: Color, pos: Coords): Board = {
+    // First remove any piece of either color at this position
+    val clearedBoard = reset(pos)
+    // Then set the new piece
+    color match {
+      case Color.White =>
+        clearedBoard.copy(white = clearedBoard.white.setPiece(piece, pos))
+      case Color.Black =>
+        clearedBoard.copy(black = clearedBoard.black.setPiece(piece, pos))
+    }
+  }
+
+  // ************************************* RESET *************************************
+
+  /** Reset (remove) any piece at position */
+  def reset(pos: Coords): Board = {
+    // Remove pieces of both colors at this position
+    val newWhite = PieceType.all.foldLeft(white)((b, p) => b.resetPiece(p, pos))
+    val newBlack = PieceType.all.foldLeft(black)((b, p) => b.resetPiece(p, pos))
+    Board(newWhite, newBlack)
+  }
+
+  /** Reset piece of specific color at position */
+  def resetPiece(piece: PieceType, color: Color, pos: Coords): Board = {
+    color match {
+      case Color.White =>
+        this.copy(white = this.white.resetPiece(piece, pos))
+      case Color.Black =>
+        this.copy(black = this.black.setPiece(piece, pos))
+    }
+  }
+
+  // ************************************** GET **************************************
+
+  /** Get piece type at position (if any) */
+
+  override def getPositions: Seq[Coords] =
+    allPieces.board.positionsOfSetBits().map(_.toCoords())
+
+  def getPieceAt(pos: Coords): PieceType = {
+    PieceType.allNonEmpty
+      .find { pieceType =>
+        white.getPiece(pieceType, pos) || black.getPiece(pieceType, pos)
+      }
+      .getOrElse(PieceType.Empty)
+  }
+
+  /** Get all pieces of a specific color */
+  def getPiecesByColor(color: Color): Seq[(PieceType, Coords)] = {
+    val board = boardByColor(color)
+    for {
+      pieceType <- PieceType.all
+      pos <- board.getPositionsByPieceType(pieceType)
+    } yield (pieceType, pos)
+  }
+
+  /** Get both color and piece type at position (if any) */
+  def getPieceAndColorAt(pos: Coords): Option[(PieceType, Color)] = {
+    val piece = getPieceAt(pos)
+    if (piece.isEmpty) return Option.empty
+    val color = colorAt(pos)
+
+    return Some(piece, color.get)
+  }
+
+  // ************************************* CHECK *************************************
+
+  override def isOccupied(position: BitPosition): Boolean =
+    allPieces.get(position)
+
+  // ************************************* COUNT *************************************
+
+  /** Get total number of pieces */
+  override def countPieces: Int = white.countPieces + black.countPieces
+
+  /** Get total number of pieces */
+  def countPiecesByPieceType(pieceType: PieceType): Int =
+    white.countPiecesByPieceType(pieceType) + black.countPiecesByPieceType(
+      pieceType
+    )
+
+  // ************************************* REST **************************************
+
+  /** Convert board to string representation */
+  override def toString: String = {
+    val sb = new StringBuilder
+    for (rank <- 7 to 0 by -1) {
+      sb.append(s"${rank + 1}|")
+      for (file <- 0 to 7) {
+        val pos = Coords(rank.toByte, file.toByte).get
+        val piece = getPieceAndColorAt(pos) match {
+          case Some((pieceType, color)) =>
+            pieceType.toChar(color)
+          case None => '.'
+        }
+        sb.append(s"$piece ")
+      }
+      sb.append("\n")
+    }
+    sb.append("------------------\n")
+    sb.append(" |a b c d e f g h\n")
+    sb.toString
+  }
+
+  def toSeq: Seq[BitBoard] = white.toSeq ++ black.toSeq
 }
 
-/** The companion object `Board` provides factory methods for creating instances
-  * of the `Board` class. These factory methods may include variations for
-  * creating a board in the initial state, creating a board from a particular
-  * game notation (like FEN), or creating a copy of an existing board.
-  *
-  * This companion object helps in providing a flexible and intuitive interface
-  * for creating `Board` instances, while hiding internal implementation details
-  * of the `Board` class.
-  */
 object Board {
-  def apply(b: Seq[Seq[Tile]] = initialBoard): Option[Board] = {
-    if (b.length != 8 || b.forall(r => r.length != 8)) None
-    else Some(new Board(b))
+
+  /** Create empty board */
+  def empty: Board = Board(BoardOfColor.empty, BoardOfColor.empty)
+
+  /** Create board with initial chess setup */
+  def initial: Board =
+    Board(BoardOfColor.initialWhite, BoardOfColor.initialBlack)
+
+  /** Create board from FEN string */
+  def fromFen(fen: String): Option[Board] = {
+    // TODO: Implement FEN parsing
+    None
   }
-
-  def initialBoard: Seq[Seq[Tile]] = fromString("""rnbqkbnr
-                                   |pppppppp
-                                   |        
-                                   |        
-                                   |        
-                                   |        
-                                   |PPPPPPPP
-                                   |RNBQKBNR""".stripMargin)
-
-  /** Builds the board from a string. Expects black pieces to be marked with
-    * lower case, white pieces with upper case.
-    *
-    * Pieces:
-    *
-    * Rook = R Knight = N Bishop = B Queen = Q King = K Pawn = P No piece = ' '
-    *
-    * The first line should be black's first rank (8th rank) and last line
-    * should be white's first rank (1st rank); ranks are separated using '\n'.
-    */
-  def fromString(str: String): Seq[Seq[Tile]] = {
-    require(
-      str.length == 71 && str.forall(c => "\n prnbqk".contains(c.toLower))
-    )
-    str.split('\n').map(row => row.map(c => Tile.fromChar(c))).reverse
-  }
-
-  def fromFEN(fen: String): Seq[Seq[Tile]] = fromFENBoard(fen.split(" ")(0))
-
-  def fromFENBoard(fen: String) = fromString(
-    fen.flatMap(c =>
-      if (c == '/') "\n"
-      else if (c.isLetter) c.toString
-      else if (c.isDigit) " " * (c.toInt - '0'.toInt)
-      else ""
-    )
-  )
-
-  // TODO: fromPGN
-  def fromPGNOnMove(fen: String, move: Int): Seq[Seq[Tile]] = ???
 }

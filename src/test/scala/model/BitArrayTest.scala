@@ -39,9 +39,9 @@ class BitArrayTest extends AnyFlatSpec with Matchers {
   }
 
   it should "set a bit" in {
-    val array = BitArray.empty.set(BitPosition.unsafeApply(5))
-    array.get(BitPosition.unsafeApply(5)) shouldBe true
-    array.toLong shouldBe (1L << 5)
+    val array = BitArray.empty.set(BitPosition.unsafeApply(1))
+    array.get(BitPosition.unsafeApply(1)) shouldBe true
+    array.toLong shouldBe binaryStringToLong("0" * 62 + "1" + "0").get
   }
 
   it should "set multiple bits" in {
@@ -53,15 +53,15 @@ class BitArrayTest extends AnyFlatSpec with Matchers {
     array.get(BitPosition.unsafeApply(1)) shouldBe true
     array.get(BitPosition.unsafeApply(3)) shouldBe true
     array.get(BitPosition.unsafeApply(5)) shouldBe true
-    array.toLong shouldBe ((1L << 1) | (1L << 3) | (1L << 5))
+    array.toLong shouldBe binaryStringToLong("0" * 58 + "101010").get
   }
 
   it should "reset a bit" in {
     val array = BitArray
       .fromLong(-1L)
-      .reset(BitPosition.unsafeApply(5)) // -1L is all 1s
-    array.get(BitPosition.unsafeApply(5)) shouldBe false
-    array.toLong shouldBe (~(1L << 5))
+      .reset(BitPosition.unsafeApply(1)) // -1L is all 1s
+    array.get(BitPosition.unsafeApply(1)) shouldBe false
+    array.toLong shouldBe binaryStringToLong("1" * 62 + "01").get
   }
 
   it should "reset multiple bits" in {
@@ -75,7 +75,7 @@ class BitArrayTest extends AnyFlatSpec with Matchers {
     array.get(BitPosition.unsafeApply(1)) shouldBe false
     array.get(BitPosition.unsafeApply(3)) shouldBe false
     array.get(BitPosition.unsafeApply(5)) shouldBe false
-    array.toLong shouldBe (~((1L << 1) | (1L << 3) | (1L << 5)))
+    array.toLong shouldBe binaryStringToLong("1" * 58 + "010101").get
   }
 
   it should "set or reset a bit based on boolean value" in {
@@ -102,7 +102,7 @@ class BitArrayTest extends AnyFlatSpec with Matchers {
   it should "count set bits" in {
     BitArray.empty.countSetBits() shouldBe 0
     BitArray.fromLong(-1L).countSetBits() shouldBe 64
-    BitArray.fromLong(5L).countSetBits() shouldBe 2
+    BitArray.fromLong(5L).countSetBits() shouldBe 2 // 5 = 101
   }
 
   it should "check if all specified positions are set" in {

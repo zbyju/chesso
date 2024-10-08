@@ -2,7 +2,6 @@ package model.board
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import model.misc.BitArray
 
 def binaryStringToLong(binary: String): Option[Long] = {
   if (binary.length == 64 && binary.forall(c => c == '0' || c == '1')) {

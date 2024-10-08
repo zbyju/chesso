@@ -1,4 +1,6 @@
-package model
+package model.board
+
+import model.PieceType
 
 case class BoardOfColor(
     pawns: BitBoard,

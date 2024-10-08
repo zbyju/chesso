@@ -1,6 +1,6 @@
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import model.Coords
+import model.board.Coords
 
 class CoordsTest extends AnyFlatSpec with Matchers {
 

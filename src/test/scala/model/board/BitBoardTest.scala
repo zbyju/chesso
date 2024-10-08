@@ -1,6 +1,8 @@
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import model.{BitBoard, BitArray, Coords, BitPosition}
+import model.board.BitBoard
+import model.board.Coords
+import model.board.BitPosition
 
 class BitBoardTest extends AnyFlatSpec with Matchers {
 

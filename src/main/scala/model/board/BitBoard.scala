@@ -1,6 +1,4 @@
-package model
-
-import model.pieces.CharPiece
+package model.board
 
 final case class BitBoard private (board: BitArray) extends BitBoardLike {
 

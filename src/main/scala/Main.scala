@@ -1,5 +1,5 @@
-import model.Board
-import model.Coords
+import model.board.Board
+import model.board.Coords
 import model.PieceType
 import model.Color
 

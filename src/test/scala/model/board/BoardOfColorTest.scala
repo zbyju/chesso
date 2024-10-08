@@ -1,7 +1,8 @@
-package model
+package model.board
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import model.PieceType
 
 class BoardOfColorTest extends AnyFlatSpec with Matchers {
 

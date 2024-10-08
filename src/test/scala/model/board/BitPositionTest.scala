@@ -1,7 +1,7 @@
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import model.Coords
-import model.BitPosition
+import model.board.BitPosition
+import model.board.Coords
 
 class BitPositionTest extends AnyFlatSpec with Matchers {
 

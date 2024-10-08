@@ -1,4 +1,6 @@
-package model
+package model.board
+
+import model.board.BitPosition
 
 final case class BitArray(private val bits: Long = 0L) {
 

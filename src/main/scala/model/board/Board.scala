@@ -1,10 +1,10 @@
-package model
+package model.board
 
-import model.pieces.Tile
 import scala.Nothing
 import java.security.InvalidParameterException
-import model.pieces.CharPiece
 import scala.annotation.switch
+import model.Color
+import model.PieceType
 
 /** The `Board` class represents a chess board in the context of a chess game.
   *

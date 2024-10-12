@@ -4,10 +4,11 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import model.board.pieces.Bishop
 import model.board.Coords
+import model.Color
 
 class BishopTest extends AnyFlatSpec with Matchers {
   "Bishop" should "should generate positive diagonal moves" in {
-    val moves = Bishop.theoreticalMoves(Coords.unsafeApply(0, 0))
+    val moves = Bishop.theoreticalMoves(Coords.unsafeApply(0, 0), Color.White)
     val coords = moves.getPositions.toSet
 
     coords shouldBe Set(
@@ -22,7 +23,7 @@ class BishopTest extends AnyFlatSpec with Matchers {
   }
 
   it should "should generate positive diagonal moves backwards" in {
-    val moves = Bishop.theoreticalMoves(Coords.unsafeApply(7, 7))
+    val moves = Bishop.theoreticalMoves(Coords.unsafeApply(7, 7), Color.White)
     val coords = moves.getPositions.toSet
 
     coords shouldBe Set(
@@ -37,7 +38,7 @@ class BishopTest extends AnyFlatSpec with Matchers {
   }
 
   it should "should generate negative diagonal moves" in {
-    val moves = Bishop.theoreticalMoves(Coords.unsafeApply(0, 7))
+    val moves = Bishop.theoreticalMoves(Coords.unsafeApply(0, 7), Color.White)
     val coords = moves.getPositions.toSet
 
     coords shouldBe Set(
@@ -52,7 +53,7 @@ class BishopTest extends AnyFlatSpec with Matchers {
   }
 
   it should "should generate negative diagonal moves backwards" in {
-    val moves = Bishop.theoreticalMoves(Coords.unsafeApply(7, 0))
+    val moves = Bishop.theoreticalMoves(Coords.unsafeApply(7, 0), Color.White)
     val coords = moves.getPositions.toSet
 
     coords shouldBe Set(
@@ -67,7 +68,7 @@ class BishopTest extends AnyFlatSpec with Matchers {
   }
 
   it should "should generate in all directions" in {
-    val moves = Bishop.theoreticalMoves(Coords.unsafeApply(3, 3))
+    val moves = Bishop.theoreticalMoves(Coords.unsafeApply(3, 3), Color.White)
     val coords = moves.getPositions.toSet
 
     coords shouldBe Set(
@@ -90,7 +91,7 @@ class BishopTest extends AnyFlatSpec with Matchers {
   }
 
   it should "should generate in all directions on non-primary diagonal" in {
-    val moves = Bishop.theoreticalMoves(Coords.unsafeApply(6, 5))
+    val moves = Bishop.theoreticalMoves(Coords.unsafeApply(6, 5), Color.White)
     val coords = moves.getPositions.toSet
 
     coords shouldBe Set(

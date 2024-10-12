@@ -51,6 +51,11 @@ object Coords {
     else Some(new Coords(rank, file))
   }
 
+  def unsafeApply(rank: Byte, file: Byte): Coords = {
+    require(rank >= 0 && rank <= 7 && file >= 0 && file <= 7)
+    new Coords(rank, file)
+  }
+
   implicit def fromString(str: String): Option[Coords] =
     if (str.length != 2) None
     else

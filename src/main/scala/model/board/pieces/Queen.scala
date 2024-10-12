@@ -50,7 +50,7 @@ object Queen extends Piece {
     val possibleCoords =
       horizontalCoords ++ verticalCoords ++ positiveCoords ++ negativeCoords
 
-    BitBoard(possibleCoords*)
+    BitBoard(possibleCoords.filter(c => c != coords)*)
   }
 
   override def legalMoves(

@@ -29,7 +29,7 @@ object Rook extends Piece {
 
     val possibleCoords = horizontalCoords ++ verticalCoords
 
-    BitBoard(possibleCoords*)
+    BitBoard(possibleCoords.filter(c => c != coords)*)
   }
 
   override def legalMoves(

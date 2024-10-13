@@ -35,7 +35,7 @@ case class Coords private (rank: Byte, file: Byte) {
     require(dir >= 0 && dir <= 7)
     val ys = Seq(2, 1, -1, -2, -2, -1, 1, 2)
     val xs = Seq(1, 2, 2, 1, -1, -2, -2, -1)
-    Coords((rank + ys(dir)).toByte, (rank + xs(dir)).toByte)
+    Coords((rank + ys(dir)).toByte, (file + xs(dir)).toByte)
   }
 
   override def toString(): String = {

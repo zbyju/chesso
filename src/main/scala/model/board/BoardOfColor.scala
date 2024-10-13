@@ -68,6 +68,17 @@ case class BoardOfColor(
     board.get(pos)
   }
 
+  def getPieceTypeAt(pos: Coords): PieceType =
+    getPieceTypeAt(BitPosition.fromCoords(pos))
+  def getPieceTypeAt(pos: BitPosition): PieceType = {
+    if pawns.get(pos) then PieceType.Pawn
+    else if rooks.get(pos) then PieceType.Rook
+    else if knights.get(pos) then PieceType.Knight
+    else if bishops.get(pos) then PieceType.Bishop
+    else if queens.get(pos) then PieceType.Queen
+    else if kings.get(pos) then PieceType.King
+    else PieceType.Empty
+  }
   override def getPositions: Seq[Coords] =
     allPieces.board.positionsOfSetBits().map(_.toCoords())
 

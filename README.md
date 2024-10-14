@@ -8,14 +8,47 @@ For more information on the sbt-dotty plugin, see the
 [﻿scala3-example-project](https://github.com/scala/scala3-example-project/blob/main/README.md).
 
 ## Features
-This project implements the **board** and **game** interfaces to simulate a chess game.
 
-### Board
-Tracks the state of the board - mainly the piece placement.
+This project implements the game of chess with a CLI interface to play the game.
 
-## Dependecies
-- Scalatest - for Unit Testing
-## Documentation
+### ChessBoard
+Tracks the state of the board, including:
+- Piece placement on the board
+- Metadata about the board state
+  - Whose turn it is
+  - Castling rights
+  - En passant availability
+- Analysis methods for:
+  - Is the player in check
+  - Is the player checkmated
+  - What squares are under attack by either player
+
+### [﻿Board](https://app.eraser.io/workspace/xr6rfrnaWzvhcZfpPcUK?elements=ndkt6UswRRi3-X46qAdHvA) 
+**Methods:**
+
+```scala
+lazy val isInCheck: Boolean
+lazy val isCheckmated: Boolean
+
+def sq(coords: Coords): PieceType
+def sq2(coords: Coords): (PieceType, Color)
+def positions: Seq[Coords]
+def positions(color: Color): Seq[Coords]
+
+def move(from: Coords, to: Coords): Option[ChessBoard]
+def isLegal(from: Coords, to: Coords): Boolean
+
+def attacked: BitBoard // Attacked by the playing player
+def attacked(color: Color): BitBoard
+
+def isAttacked(coords: Coords): Boolean
+def isOccupied(coords: Coords): Boolean
+def isOccupiedBy(color: Color, coords: Coords): Boolean
+
+def theoreticalMoves(coords: Coords): BitBoard
+def legalMoves(coords: Coords): BitBoard
+```
+
 ### Game
 **Methods:**
 
@@ -24,18 +57,10 @@ lazy val isFinished: Boolean
 lazy val result: Result
 def move(move: Move): Either[String, Game]
 ```
-### [﻿Board](https://app.eraser.io/workspace/xr6rfrnaWzvhcZfpPcUK?elements=ndkt6UswRRi3-X46qAdHvA) 
-**Methods:**
 
-```scala
-lazy val whitePieces: BoardPieces
-lazy val blackPieces: BoardPieces
-lazy val allPieces: BoardPieces
-
-def sq(coords: Coords): Tile
-def sq(coords: String): Option[Tile]
-def move(move: Move): Board
-```
+## Dependecies
+- Scalatest - for Unit Testing
+## Documentation
 
 
 
